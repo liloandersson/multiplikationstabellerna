@@ -3,123 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PQ-Formel Hjälparen</title>
+    <title>Multiplikationstränaren 1-9</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        .math-font {
-            font-family: "Times New Roman", Times, serif;
-            font-style: italic;
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .card {
+            transition: transform 0.2s;
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        .correct-pop {
+            animation: pop 0.3s ease-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-slate-800 mb-2">PQ-Hjälpen</h1>
-            <p class="text-slate-500">Lös andragradsekvationer på formen:</p>
-            <div class="mt-2 text-xl math-font bg-slate-100 py-2 rounded-lg border border-dashed border-slate-300">
-                x² + <span class="text-blue-600 font-bold">p</span>x + <span class="text-red-600 font-bold">q</span> = 0
+    <div id="game-container" class="bg-white rounded-3xl shadow-xl p-8 w-full max-w-md card">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-extrabold text-blue-600 mb-2">Gångertabellen</h1>
+            <p class="text-gray-500">Träna på tabellerna 1-9</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex justify-between mb-6 text-sm font-semibold">
+            <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full">
+                Rätt: <span id="score-correct">0</span>
             </div>
-        </header>
-
-        <div class="space-y-6">
-            <!-- Input sektion -->
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Värde på p</label>
-                    <input type="number" id="p-val" step="any" placeholder="t.ex. -4" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Värde på q</label>
-                    <input type="number" id="q-val" step="any" placeholder="t.ex. 3" 
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                </div>
-            </div>
-
-            <button onclick="solvePQ()" 
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transform transition-transform active:scale-95">
-                Beräkna rötter
-            </button>
-
-            <!-- Resultat sektion -->
-            <div id="result-container" class="hidden space-y-4 animate-in fade-in duration-500">
-                <div class="h-px bg-slate-200 my-6"></div>
-                
-                <div id="steps" class="bg-blue-50 p-4 rounded-xl text-sm text-slate-700 space-y-2 font-mono border border-blue-100">
-                    <!-- Steg-för-steg uträkning hamnar här -->
-                </div>
-
-                <div id="solution-display" class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
-                        <span class="block text-xs text-green-600 uppercase font-bold">Lösning x₁</span>
-                        <span id="x1-val" class="text-2xl font-bold text-slate-800">-</span>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
-                        <span class="block text-xs text-green-600 uppercase font-bold">Lösning x₂</span>
-                        <span id="x2-val" class="text-2xl font-bold text-slate-800">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Felmeddelande -->
-            <div id="error-box" class="hidden bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-sm">
+            <div class="bg-red-100 text-red-700 px-4 py-2 rounded-full">
+                Fel: <span id="score-wrong">0</span>
             </div>
         </div>
 
-        <footer class="mt-8 text-center text-xs text-slate-400">
-            Formel: x = -(p/2) ± √((p/2)² - q)
-        </footer>
+        <!-- Question Area -->
+        <div id="question-box" class="text-center py-10 bg-blue-50 rounded-2xl mb-6">
+            <div class="text-5xl font-bold text-gray-800 tracking-wider">
+                <span id="num1">?</span> × <span id="num2">?</span> = ?
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="flex flex-col gap-4">
+            <input type="number" id="answer-input" 
+                   class="w-full text-center text-3xl p-4 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                   placeholder="Svar..."
+                   inputmode="numeric">
+            
+            <button id="check-btn" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-xl shadow-lg transform active:scale-95 transition-all">
+                Svara
+            </button>
+        </div>
+
+        <!-- Message -->
+        <div id="feedback-msg" class="text-center mt-6 font-semibold h-6 opacity-0 transition-opacity">
+            Bra jobbat!
+        </div>
+
+        <!-- Reset -->
+        <div class="text-center mt-8">
+            <button id="reset-btn" class="text-gray-400 hover:text-gray-600 text-sm underline">
+                Nollställ poäng
+            </button>
+        </div>
     </div>
 
     <script>
-        function solvePQ() {
-            const p = parseFloat(document.getElementById('p-val').value);
-            const q = parseFloat(document.getElementById('q-val').value);
-            const resContainer = document.getElementById('result-container');
-            const errorBox = document.getElementById('error-box');
-            const steps = document.getElementById('steps');
-            const x1Display = document.getElementById('x1-val');
-            const x2Display = document.getElementById('x2-val');
+        // State
+        let num1, num2, correctAnswer;
+        let scoreCorrect = 0;
+        let scoreWrong = 0;
 
-            // Återställ UI
-            errorBox.classList.add('hidden');
-            resContainer.classList.add('hidden');
+        // Elements
+        const num1El = document.getElementById('num1');
+        const num2El = document.getElementById('num2');
+        const inputEl = document.getElementById('answer-input');
+        const checkBtn = document.getElementById('check-btn');
+        const feedbackEl = document.getElementById('feedback-msg');
+        const correctScoreEl = document.getElementById('score-correct');
+        const wrongScoreEl = document.getElementById('score-wrong');
+        const containerEl = document.getElementById('game-container');
+        const resetBtn = document.getElementById('reset-btn');
 
-            if (isNaN(p) || isNaN(q)) {
-                errorBox.innerText = "Vänligen fyll i både p och q.";
-                errorBox.classList.remove('hidden');
-                return;
-            }
-
-            const pHalf = p / 2;
-            const underRoot = Math.pow(pHalf, 2) - q;
-
-            if (underRoot < 0) {
-                errorBox.innerText = "Ekvationen saknar reella rötter (diskriminanten är negativ).";
-                errorBox.classList.remove('hidden');
-                return;
-            }
-
-            const rootResult = Math.sqrt(underRoot);
-            const x1 = -pHalf + rootResult;
-            const x2 = -pHalf - rootResult;
-
-            // Visa uträkningen
-            steps.innerHTML = `
-                <p>1. Halvera p: ${p}/2 = ${pHalf}</p>
-                <p>2. Diskriminant: (${pHalf})² - (${q}) = ${underRoot.toFixed(2)}</p>
-                <p>3. Roten ur: √${underRoot.toFixed(2)} ≈ ${rootResult.toFixed(2)}</p>
-                <p>4. x = -(${pHalf}) ± ${rootResult.toFixed(2)}</p>
-            `;
-
-            // Formatera svar
-            x1Display.innerText = Number.isInteger(x1) ? x1 : x1.toFixed(3);
-            x2Display.innerText = Number.isInteger(x2) ? x2 : x2.toFixed(3);
-
-            resContainer.classList.remove('hidden');
+        // Functions
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 9) + 1;
+            num2 = Math.floor(Math.random() * 9) + 1;
+            correctAnswer = num1 * num2;
+            
+            num1El.textContent = num1;
+            num2El.textContent = num2;
+            inputEl.value = '';
+            inputEl.focus();
         }
+
+        function showFeedback(text, isCorrect) {
+            feedbackEl.textContent = text;
+            feedbackEl.className = `text-center mt-6 font-semibold h-6 opacity-100 ${isCorrect ? 'text-green-500' : 'text-red-500'}`;
+            
+            if (isCorrect) {
+                containerEl.classList.add('correct-pop');
+                setTimeout(() => containerEl.classList.remove('correct-pop'), 300);
+            } else {
+                containerEl.classList.add('shake');
+                setTimeout(() => containerEl.classList.remove('shake'), 500);
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(inputEl.value);
+            
+            if (isNaN(userAnswer)) return;
+
+            if (userAnswer === correctAnswer) {
+                scoreCorrect++;
+                correctScoreEl.textContent = scoreCorrect;
+                showFeedback('Helt rätt! ✨', true);
+                setTimeout(generateQuestion, 1000);
+            } else {
+                scoreWrong++;
+                wrongScoreEl.textContent = scoreWrong;
+                showFeedback(`Inte riktigt, prova igen!`, false);
+                inputEl.value = '';
+                inputEl.focus();
+            }
+        }
+
+        // Event Listeners
+        checkBtn.addEventListener('click', checkAnswer);
+        
+        inputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            scoreCorrect = 0;
+            scoreWrong = 0;
+            correctScoreEl.textContent = '0';
+            wrongScoreEl.textContent = '0';
+            feedbackEl.style.opacity = '0';
+            generateQuestion();
+        });
+
+        // Initialize
+        window.onload = generateQuestion;
     </script>
 </body>
 </html>
