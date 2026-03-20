@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQ-Formel Hjälparen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .math-font {
+            font-family: "Times New Roman", Times, serif;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">PQ-Hjälpen</h1>
+            <p class="text-slate-500">Lös andragradsekvationer på formen:</p>
+            <div class="mt-2 text-xl math-font bg-slate-100 py-2 rounded-lg border border-dashed border-slate-300">
+                x² + <span class="text-blue-600 font-bold">p</span>x + <span class="text-red-600 font-bold">q</span> = 0
+            </div>
+        </header>
+
+        <div class="space-y-6">
+            <!-- Input sektion -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Värde på p</label>
+                    <input type="number" id="p-val" step="any" placeholder="t.ex. -4" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Värde på q</label>
+                    <input type="number" id="q-val" step="any" placeholder="t.ex. 3" 
+                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+            </div>
+
+            <button onclick="solvePQ()" 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 transform transition-transform active:scale-95">
+                Beräkna rötter
+            </button>
+
+            <!-- Resultat sektion -->
+            <div id="result-container" class="hidden space-y-4 animate-in fade-in duration-500">
+                <div class="h-px bg-slate-200 my-6"></div>
+                
+                <div id="steps" class="bg-blue-50 p-4 rounded-xl text-sm text-slate-700 space-y-2 font-mono border border-blue-100">
+                    <!-- Steg-för-steg uträkning hamnar här -->
+                </div>
+
+                <div id="solution-display" class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <span class="block text-xs text-green-600 uppercase font-bold">Lösning x₁</span>
+                        <span id="x1-val" class="text-2xl font-bold text-slate-800">-</span>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <span class="block text-xs text-green-600 uppercase font-bold">Lösning x₂</span>
+                        <span id="x2-val" class="text-2xl font-bold text-slate-800">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Felmeddelande -->
+            <div id="error-box" class="hidden bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-sm">
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-xs text-slate-400">
+            Formel: x = -(p/2) ± √((p/2)² - q)
+        </footer>
+    </div>
+
+    <script>
+        function solvePQ() {
+            const p = parseFloat(document.getElementById('p-val').value);
+            const q = parseFloat(document.getElementById('q-val').value);
+            const resContainer = document.getElementById('result-container');
+            const errorBox = document.getElementById('error-box');
+            const steps = document.getElementById('steps');
+            const x1Display = document.getElementById('x1-val');
+            const x2Display = document.getElementById('x2-val');
+
+            // Återställ UI
+            errorBox.classList.add('hidden');
+            resContainer.classList.add('hidden');
+
+            if (isNaN(p) || isNaN(q)) {
+                errorBox.innerText = "Vänligen fyll i både p och q.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const pHalf = p / 2;
+            const underRoot = Math.pow(pHalf, 2) - q;
+
+            if (underRoot < 0) {
+                errorBox.innerText = "Ekvationen saknar reella rötter (diskriminanten är negativ).";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            const rootResult = Math.sqrt(underRoot);
+            const x1 = -pHalf + rootResult;
+            const x2 = -pHalf - rootResult;
+
+            // Visa uträkningen
+            steps.innerHTML = `
+                <p>1. Halvera p: ${p}/2 = ${pHalf}</p>
+                <p>2. Diskriminant: (${pHalf})² - (${q}) = ${underRoot.toFixed(2)}</p>
+                <p>3. Roten ur: √${underRoot.toFixed(2)} ≈ ${rootResult.toFixed(2)}</p>
+                <p>4. x = -(${pHalf}) ± ${rootResult.toFixed(2)}</p>
+            `;
+
+            // Formatera svar
+            x1Display.innerText = Number.isInteger(x1) ? x1 : x1.toFixed(3);
+            x2Display.innerText = Number.isInteger(x2) ? x2 : x2.toFixed(3);
+
+            resContainer.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
